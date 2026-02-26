@@ -1,26 +1,23 @@
 import express from 'express';
+import { tarefas } from './dados.js'; // Importa o array do arquivo de dados [cite: 33, 37]
 
 const app = express();
-app.use(express.json()); // Permite receber JSON [cite: 168, 169]
+const PORTA = 3000; // Define a porta conforme o requisito [cite: 43]
 
-// Dados em memória [cite: 198, 199]
-let tarefas = [
-    { id: 1, titulo: "Estudar Node.js", concluida: false },
-    { id: 2, titulo: "Configurar GitHub", concluida: true }
-];
+app.use(express.json()); // Middleware obrigatório para aceitar JSON [cite: 45, 103]
 
-// Rota GET: Listar itens [cite: 171, 184]
+// Rota GET: Listar todas as tarefas (Status 200) [cite: 47, 54, 106]
 app.get('/tarefas', (req, res) => {
-    res.status(200).json(tarefas); // [cite: 178, 186]
+    res.status(200).json(tarefas);
 });
 
-// Rota POST: Criar item com validação [cite: 172, 189]
+// Rota POST: Criar nova tarefa com validação (Status 201 ou 400) [cite: 48, 55, 56, 107, 108]
 app.post('/tarefas', (req, res) => {
-    const { titulo } = req.body; // [cite: 174, 190]
+    const { titulo } = req.body;
 
-    // Validação mínima obrigatória [cite: 206, 209]
+    // Validação mínima: título obrigatório [cite: 85, 114, 115]
     if (!titulo || titulo.trim() === "") {
-        return res.status(400).json({ erro: "Título é obrigatório." }); // [cite: 180, 210]
+        return res.status(400).json({ erro: "Título é obrigatório." });
     }
 
     const novaTarefa = {
@@ -29,12 +26,11 @@ app.post('/tarefas', (req, res) => {
         concluida: false
     };
 
-    tarefas.push(novaTarefa); // [cite: 204]
-    res.status(201).json(novaTarefa); // [cite: 179, 192]
+    tarefas.push(novaTarefa); // Adiciona ao array em memória [cite: 80, 113]
+    res.status(201).json(novaTarefa); // Retorna o item criado [cite: 98, 107]
 });
 
-// Configuração da Porta e Inicialização [cite: 149, 167]
-const PORTA = 3000;
+// Inicialização do servidor [cite: 95]
 app.listen(PORTA, () => {
     console.log(`Servidor rodando em http://localhost:${PORTA}`);
 });
