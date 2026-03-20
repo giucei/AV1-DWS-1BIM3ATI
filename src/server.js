@@ -1,5 +1,6 @@
 import express from 'express';
 import { tarefas } from './dados.js'; // Importa o array do arquivo de dados [cite: 33, 37]
+import { localhost } from './tarefas.js';
 
 const app = express();
 const PORTA = 3000; // Define a porta conforme o requisito [cite: 43]
@@ -30,7 +31,89 @@ app.post('/tarefas', (req, res) => {
     res.status(201).json(novaTarefa); // Retorna o item criado [cite: 98, 107]
 });
 
+app.put('/tarefas/:id', (req, res) => {
+    const id = Number(req.params.id);
+    const { titulo, concluida } = req.body;
+
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ erro: 'ID inválido.' });
+    }
+
+    if (!titulo || titulo.trim() === '') {
+        return res.status(400).json({ erro: 'Título é obrigatório.' });
+    }
+
+    if (typeof concluida !== 'boolean') {
+        return res.status(400).json({ erro: 'O campo concluida deve ser booleano.' });
+    }
+
+    const indice = tarefas.findIndex((tarefa) => tarefa.id === id);
+
+    if (indice === -1) {
+        return res.status(404).json({ erro: 'Tarefa não encontrada.' });
+    }
+
+    const tarefaAtualizada = { id, titulo, concluida };
+    tarefas[indice] = tarefaAtualizada;
+
+    return res.status(200).json(tarefaAtualizada);
+});
+
+app.patch('/tarefas/:id', (req, res) => {
+    const id = Number(req.params.id);
+    const { titulo, concluida } = req.body;
+
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ erro: 'ID inválido.' });
+    }
+
+    if (titulo === undefined && concluida === undefined) {
+        return res.status(400).json({ erro: 'Informe ao menos um campo para atualizar.' });
+    }
+
+    if (titulo !== undefined && (!titulo || titulo.trim() === '')) {
+        return res.status(400).json({ erro: 'Título inválido.' });
+    }
+
+    if (concluida !== undefined && typeof concluida !== 'boolean') {
+        return res.status(400).json({ erro: 'O campo concluida deve ser booleano.' });
+    }
+
+    const indice = tarefas.findIndex((tarefa) => tarefa.id === id);
+
+    if (indice === -1) {
+        return res.status(404).json({ erro: 'Tarefa não encontrada.' });
+    }
+
+    if (titulo !== undefined) {
+        tarefas[indice].titulo = titulo;
+    }
+
+    if (concluida !== undefined) {
+        tarefas[indice].concluida = concluida;
+    }
+
+    return res.status(200).json(tarefas[indice]);
+});
+
+app.delete('/tarefas/:id', (req, res) => {
+    const id = Number(req.params.id);
+
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ erro: 'ID inválido.' });
+    }
+
+    const indice = tarefas.findIndex((tarefa) => tarefa.id === id);
+
+    if (indice === -1) {
+        return res.status(404).json({ erro: 'Tarefa não encontrada.' });
+    }
+
+    tarefas.splice(indice, 1);
+    return res.status(204).send();
+});
+
 // Inicialização do servidor [cite: 95]
 app.listen(PORTA, () => {
-    console.log(`Servidor rodando em http://localhost:${PORTA}`);
+    console.log(`Servidor rodando em ${localhost}`);
 });
