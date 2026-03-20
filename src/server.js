@@ -59,43 +59,6 @@ app.put('/tarefas/:id', (req, res) => {
     return res.status(200).json(tarefaAtualizada);
 });
 
-app.patch('/tarefas/:id', (req, res) => {
-    const id = Number(req.params.id);
-    const { titulo, concluida } = req.body;
-
-    if (!Number.isInteger(id) || id <= 0) {
-        return res.status(400).json({ erro: 'ID inválido.' });
-    }
-
-    if (titulo === undefined && concluida === undefined) {
-        return res.status(400).json({ erro: 'Informe ao menos um campo para atualizar.' });
-    }
-
-    if (titulo !== undefined && (!titulo || titulo.trim() === '')) {
-        return res.status(400).json({ erro: 'Título inválido.' });
-    }
-
-    if (concluida !== undefined && typeof concluida !== 'boolean') {
-        return res.status(400).json({ erro: 'O campo concluida deve ser booleano.' });
-    }
-
-    const indice = tarefas.findIndex((tarefa) => tarefa.id === id);
-
-    if (indice === -1) {
-        return res.status(404).json({ erro: 'Tarefa não encontrada.' });
-    }
-
-    if (titulo !== undefined) {
-        tarefas[indice].titulo = titulo;
-    }
-
-    if (concluida !== undefined) {
-        tarefas[indice].concluida = concluida;
-    }
-
-    return res.status(200).json(tarefas[indice]);
-});
-
 app.delete('/tarefas/:id', (req, res) => {
     const id = Number(req.params.id);
 
